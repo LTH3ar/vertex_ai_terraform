@@ -1,7 +1,9 @@
 name: 'Terraform Deploy'
 
 on:
-  push:
+  pull_request:
+    types: 
+      - closed
     branches:
       - main
     
@@ -9,9 +11,15 @@ permissions:
   contents: read
 
 jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "PR is merged"
+
+
   # linter-check:
   #   # check the code with super-linter
-  #   #if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
   #   runs-on: ubuntu-latest
   #   name: 'Terraform Linter Check'
   #   permissions:
@@ -33,8 +41,7 @@ jobs:
 
 
   generate-matrix:
-    #needs: linter-check
-    if: github.event.review.state == 'approved'
+    needs: if_merged
     runs-on: ubuntu-latest
     name: 'Generate matrix'
     outputs:
