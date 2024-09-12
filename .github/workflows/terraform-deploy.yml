@@ -58,7 +58,7 @@ jobs:
         run: |
           echo "PR is merged"
           echo "Generating matrix"
-          chmod +x matrix_generator.sh
+          chmod +x ../scripts/matrix_generator.sh
           MATRIX=$(echo $(../scripts/matrix_generator.sh $(pwd)/tfvars) | jq -c . | sed 's/ //g')    
           echo $GITHUB_OUTPUT
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
