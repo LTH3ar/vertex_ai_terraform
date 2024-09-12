@@ -12,7 +12,7 @@ jobs:
   linter-check:
     # check the code with super-linter
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     name: 'Terraform Linter Check'
     permissions:
       contents: read
@@ -34,7 +34,7 @@ jobs:
 
   generate-matrix:
     needs: linter-check
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     name: 'Generate matrix'
     outputs:
       matrix: ${{ steps.matrix-generator.outputs.matrix }}
@@ -56,7 +56,7 @@ jobs:
   terraform:
     needs: generate-matrix
     name: 'Terraform'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }} #[user_1, user_2, user_3, user_4, user_5, user_6, user_7, user_8, user_9, user_10] 
     defaults:
