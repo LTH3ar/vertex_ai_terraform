@@ -1,0 +1,66 @@
+name: 'Terraform Deploy'
+
+on:
+  push:
+    branches:
+      - main
+    
+permissions:
+  contents: read
+
+jobs:
+  generate-matrix:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-22.04
+    name: 'Generate matrix'
+    outputs:
+      matrix: ${{ steps.matrix-generator.outputs.matrix }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: matrix-generator
+        name: Generate matrix
+        run: |
+          chmod +x matrix_generator.sh
+          MATRIX=$(echo $(../scripts/matrix_generator.sh $(pwd)/tfvars) | jq -c . | sed 's/ //g')    
+          echo $GITHUB_OUTPUT
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+        working-directory: ./workbench_instances
+  terraform:
+    needs: generate-matrix
+    name: 'Terraform'
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }} #[user_1, user_2, user_3, user_4, user_5, user_6, user_7, user_8, user_9, user_10] 
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.9.0"
+    # Authenticate to Google Cloud Project
+    - name: Google Auth
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_AUTH_CREDENTIALS }}' 
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init -reconfigure
+      working-directory: ./workbench_instances
+    # Create and choosing workspace for each user
+    - name: Terraform Choose Workspace
+      run: terraform workspace new ${{ matrix.user_config }} || terraform workspace select ${{ matrix.user_config }}
+      working-directory: ./workbench_instances
+    - name: Terraform Apply
+      run: |
+        terraform apply -var-file=tfvars/${{ matrix.user_config }} -auto-approve -lock=false
+      working-directory: ./workbench_instances

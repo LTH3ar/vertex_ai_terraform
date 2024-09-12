@@ -35,3 +35,15 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# ignore all json files
+*.json
+
+# ignore all .DS_Store files
+.DS_Store
+
+# ignore all idea files
+.idea
+
+# ignore all .terraform.lock.hcl files
+.terraform.lock.hcl
