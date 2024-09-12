@@ -34,7 +34,7 @@ jobs:
 
   generate-matrix:
     #needs: linter-check
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     name: 'Generate matrix'
     outputs:
@@ -49,6 +49,8 @@ jobs:
       - id: matrix-generator
         name: Generate matrix
         run: |
+          echo "PR is merged"
+          echo "Generating matrix"
           chmod +x matrix_generator.sh
           MATRIX=$(echo $(../scripts/matrix_generator.sh $(pwd)/tfvars) | jq -c . | sed 's/ //g')    
           echo $GITHUB_OUTPUT
