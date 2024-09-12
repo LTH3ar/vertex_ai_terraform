@@ -34,7 +34,7 @@ jobs:
 
   generate-matrix:
     #needs: linter-check
-    if: github.event.pull_request.merged == true
+    if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
     name: 'Generate matrix'
     outputs:
