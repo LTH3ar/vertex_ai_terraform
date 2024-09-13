@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIR=$1
+DIR=$1 # Path to the directory containing the user config files
 
 echo -n '{"user_config": ['
 
@@ -11,7 +11,7 @@ for file in "$DIR"/*; do
   else
     echo -n ','
   fi
-  echo -n \""$(basename $file)\""
+  echo -n \""$(basename "$file")\"" # Get the filename without the path
 done
 
 echo -n ']}'
